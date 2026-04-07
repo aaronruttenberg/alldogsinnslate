@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Film & TV Slate</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a08;
+    --surface: #111110;
+    --border: #2a2a26;
+    --border-light: #1e1e1b;
+    --accent: #c8a96e;
+    --accent-dim: #8a7248;
+    --text-primary: #e8e4dc;
+    --text-secondary: #7a776e;
+    --text-muted: #4a4844;
+    --status-dev: #4a7c59;
+    --status-pre: #7c6b4a;
+    --status-prod: #4a5f7c;
+    --status-post: #7c4a6b;
+    --status-complete: #3a3a36;
+    --priority-high: #c4533a;
+    --priority-med: #c4943a;
+    --priority-low: #3a7c5c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    min-height: 100vh;
+    font-size: 12px;
+  }
+
+  /* Header */
+  /* header styles are inline */
+
+  .company-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    cursor: pointer;
+    outline: none;
+    border: none;
+    background: transparent;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+    display: inline-block;
+    width: auto;
+  }
+  .company-name:hover { opacity: 0.7; }
+  .company-name:focus { text-decoration: underline; text-underline-offset: 4px; }
+
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  .header-divider {
+    width: 1px;
+    height: 16px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--text-muted);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .add-btn {
+    margin-top: 0;
+    background: transparent;
+    border: 1px solid var(--accent-dim);
+    color: var(--accent);
+    padding: 6px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .add-btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  /* Column headers */
+  .col-headers {
+    display: grid;
+    grid-template-columns: 160px 85px 1.4fr 90px 160px 1.6fr 100px 110px 75px;
+    gap: 0;
+    padding: 0 48px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .col-header {
+    padding: 10px 12px;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-right: 1px solid var(--border-light);
+  }
+  .col-header:last-child { border-right: none; }
+
+  /* Grid */
+  .slate-grid {
+    padding: 0 48px 80px;
+  }
+
+  .film-row {
+    display: grid;
+    grid-template-columns: 160px 85px 1.4fr 90px 160px 1.6fr 100px 110px 75px;
+    gap: 0;
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.15s;
+    position: relative;
+  }
+  .film-row:hover { background: rgba(200, 169, 110, 0.025); }
+  .film-row.dragging { opacity: 0.5; }
+  .film-row.drag-over { border-top: 2px solid var(--accent); }
+
+  .cell {
+    padding: 16px 12px;
+    border-right: 1px solid var(--border-light);
+    display: flex;
+    align-items: flex-start;
+    min-height: 72px;
+    position: relative;
+  }
+  .cell:last-child { border-right: none; }
+
+  /* Editable content */
+  [contenteditable] {
+    outline: none;
+    width: 100%;
+    min-height: 1em;
+    cursor: default;
+    transition: background 0.15s;
+    border-radius: 2px;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    line-height: 1.5;
+  }
+  [contenteditable="true"].editing {
+    cursor: text;
+    background: rgba(200, 169, 110, 0.08);
+  }
+  [contenteditable]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .cell-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+    line-height: 1.3;
+  }
+
+  .cell-logline {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+  }
+
+  .cell-actions {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .cell-material {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .cell-date {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* Priority badge */
+  .priority-select {
+    appearance: none;
+    border: none;
+    background: transparent;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 2px;
+    font-weight: 500;
+    width: 100%;
+    outline: none;
+  }
+  .priority-HIGH { background: rgba(196,83,58,0.15); color: #e87a60; }
+  .priority-MED  { background: rgba(196,148,58,0.15); color: #e8b060; }
+  .priority-LOW  { background: rgba(58,124,92,0.15); color: #60b890; }
+
+  /* Status badge */
+  .status-select {
+    appearance: none;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 2px;
+    font-weight: 500;
+    width: 100%;
+    outline: none;
+    background: transparent;
+  }
+  .status-Development  { background: rgba(74,124,89,0.15); color: #72c48a; }
+  .status-Pre-Production { background: rgba(124,107,74,0.15); color: #c4a872; }
+  .status-Production   { background: rgba(74,95,124,0.15); color: #72a0c4; }
+  .status-Post-Production { background: rgba(124,74,107,0.15); color: #c472a8; }
+  .status-Complete     { background: rgba(58,58,54,0.4); color: #888; }
+  .status-On-Hold      { background: rgba(80,40,40,0.3); color: #a06060; }
+
+  .cell-status-note {
+    font-size: 10px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    width: 100%;
+  }
+
+  .cell-writer {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Delete btn */
+  .delete-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 2px;
+    transition: all 0.15s;
+    align-self: center;
+    width: auto;
+    text-align: center;
+  }
+  .delete-btn:hover { color: #c4533a; border-color: #c4533a; background: rgba(196,83,58,0.08); }
+
+  /* Footer */
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    padding: 12px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  #film-count { color: var(--accent); }
+
+  /* Animations */
+  @keyframes rowIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .film-row { animation: rowIn 0.25s ease forwards; }
+
+  .auto-link {
+    color: inherit;
+    font: inherit;
+    font-style: inherit;
+    letter-spacing: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .auto-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  .format-select {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-weight: 500;
+    outline: none;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    width: 100%;
+  }
+  .format-select:focus { border-color: var(--accent-dim); }
+  .format-FEATURE { background: rgba(74,95,124,0.15); color: #72a0c4; border-color: rgba(74,95,124,0.3); }
+  .format-TV      { background: rgba(124,74,107,0.15); color: #c472a8; border-color: rgba(124,74,107,0.3); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  /* Drag handle */
+  .drag-handle {
+    position: absolute;
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 10px;
+    cursor: grab;
+    opacity: 0;
+    transition: opacity 0.15s;
+    user-select: none;
+  }
+  .film-row:hover .drag-handle { opacity: 0.5; }
+</style>
+</head>
+<body>
+
+<header style="display:flex; justify-content:center; padding:14px 48px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg); z-index:100;">
+  <div style="display:inline-flex; align-items:center; gap:20px; margin-left:-80px;">
+    <span contenteditable="true" class="company-name" data-placeholder="COMPANY NAME" spellcheck="false">YOUR PRODUCTION CO.</span>
+    <span style="color:var(--text-muted);font-size:10px;letter-spacing:0.1em;">·</span>
+    <span style="font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:300; color:var(--text-primary); white-space:nowrap;">Film &amp; TV Slate</span>
+    <span style="color:var(--text-muted);font-size:10px;letter-spacing:0.1em;">·</span>
+    <span id="date-display" style="color:var(--text-muted);font-size:10px;letter-spacing:0.1em;white-space:nowrap;"></span>
+    <span style="color:var(--text-muted);font-size:10px;letter-spacing:0.1em;white-space:nowrap;"><span id="film-count">0</span> projects</span>
+    <button class="add-btn" onclick="addFilm()">+ Add Project</button>
+    <button class="add-btn" onclick="saveSlate()">↓ Save</button>
+  </div>
+</header>
+
+<div class="col-headers">
+  <div class="col-header">Title</div>
+  <div class="col-header">Writer</div>
+  <div class="col-header">Logline</div>
+  <div class="col-header">Priority</div>
+  <div class="col-header">Status</div>
+  <div class="col-header">Action Items</div>
+  <div class="col-header">Material</div>
+  <div class="col-header">Last Updated</div>
+  <div class="col-header" style="border-right: 1px solid var(--border-light);">Delete Project</div>
+</div>
+
+<div class="slate-grid" id="slate-grid"></div>
+
+<footer>
+  <span>FILM & TV SLATE — <span style="color:var(--accent-dim);">DOUBLE-CLICK</span> ANY FIELD TO EDIT &nbsp;·&nbsp; <span id="save-status" style="color: var(--accent-dim);">AUTO-SAVING</span></span>
+  <span><a href="#" onclick="resetSlate()" style="color:var(--text-muted);text-decoration:none;" onmouseover="this.style.color='#c4533a'" onmouseout="this.style.color='var(--text-muted)'">RESET TO DEFAULT</a> &nbsp;·&nbsp; DRAG ROWS TO REORDER</span>
+</footer>
+
+<script>
+  const PRIORITIES = ['HIGH','MED','LOW'];
+  const STATUSES = ['Development','Pre-Production','Production','Post-Production','Post Hold','Complete','On-Hold'];
+
+  const defaultFilms = [
+    {
+      title: 'The Meridian Line',
+      logline: 'A disgraced cartographer discovers her late father\'s maps lead to a territory that shouldn\'t exist — and someone powerful wants it kept that way.',
+      priority: 'HIGH',
+      status: 'Development',
+      actions: 'Finish second draft\nAttach director by Q2',
+      material: 'Screenplay v2\nLook book',
+      updated: today()
+    },
+    {
+      title: 'Still Water',
+      logline: 'Two estranged brothers reunite to sell their childhood home and unearth a decades-old secret their mother took to her grave.',
+      priority: 'HIGH',
+      status: 'Pre-Production',
+      actions: 'Location scout – Pacific NW\nFinalize cast offers',
+      material: 'Script locked\nBudget draft',
+      updated: today()
+    },
+    {
+      title: 'Frequencies',
+      logline: 'A pirate radio DJ in 1987 Detroit accidentally broadcasts a message that changes the course of a city on the edge of collapse.',
+      priority: 'MED',
+      status: 'Development',
+      actions: 'Commission score sample\nResearch clearances',
+      material: 'Treatment\nPitch deck',
+      updated: today()
+    },
+    {
+      title: 'The Burning Season',
+      logline: 'An investigative journalist embedded with wildland firefighters uncovers an arson conspiracy with roots in state government.',
+      priority: 'MED',
+      status: 'On-Hold',
+      actions: 'Await rights clearance\nRevisit Q3',
+      material: 'Option agreement\nOutline',
+      updated: today()
+    },
+    {
+      title: 'Harbour',
+      logline: 'After washing ashore with no memory, a woman rebuilds her life in a coastal fishing town — until someone who knows her real identity arrives.',
+      priority: 'LOW',
+      status: 'Development',
+      actions: 'Writer meeting scheduled',
+      material: 'Short story rights',
+      updated: today()
+    }
+  ];
+
+  function today() {
+    return new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  }
+
+  function updateCount() {
+    document.getElementById('film-count').textContent =
+      document.querySelectorAll('.film-row').length;
+  }
+
+  function makeRow(film) {
+    const row = document.createElement('div');
+    row.className = 'film-row';
+    row.draggable = true;
+
+    const pOpts = PRIORITIES.map(p =>
+      `<option value="${p}" ${film.priority===p?'selected':''}>${p}</option>`
+    ).join('');
+    const sOpts = STATUSES.map(s =>
+      `<option value="${s}" ${film.status===s?'selected':''}>${s}</option>`
+    ).join('');
+    const fOpts = ['','FEATURE','TV'].map(f =>
+      `<option value="${f}" ${(film.format||'')=== f?'selected':''}>${f||'— Format —'}</option>`
+    ).join('');
+
+    row.innerHTML = `
+      <div class="drag-handle">⠿</div>
+      <div class="cell" style="flex-direction:column; align-items:stretch; gap:4px;">
+        <select class="format-select format-${film.format||''}" onchange="onFormatChange(this)">${fOpts}</select>
+        <div class="cell-title" contenteditable="true" spellcheck="false" data-placeholder="Untitled">${film.title}</div>
+      </div>
+      <div class="cell">
+        <div class="cell-writer" contenteditable="true" spellcheck="false" data-placeholder="Writer name">${film.writer||''}</div>
+      </div>
+      <div class="cell">
+        <div class="cell-logline" contenteditable="true" spellcheck="false" data-placeholder="Enter logline...">${film.logline}</div>
+      </div>
+      <div class="cell" style="align-items:flex-start; padding-top: 18px;">
+        <select class="priority-select priority-${film.priority}" onchange="onPriorityChange(this)">
+          ${pOpts}
+        </select>
+      </div>
+      <div class="cell" style="align-items:flex-start; flex-direction:column; gap:8px;">
+        <select class="status-select status-${film.status.replace(/\s/g,'-')}" onchange="onStatusChange(this)">
+          ${sOpts}
+        </select>
+        <div class="cell-status-note" contenteditable="true" spellcheck="false" data-placeholder="Add a note...">${film.statusNote||''}</div>
+      </div>
+      <div class="cell">
+        <div class="cell-actions" contenteditable="true" spellcheck="false" data-placeholder="Add action items...">${film.actions}</div>
+      </div>
+      <div class="cell">
+        <div class="cell-material" contenteditable="true" spellcheck="false" data-placeholder="Script, treatment...">${film.material}</div>
+      </div>
+      <div class="cell" style="align-items:center;">
+        <div class="cell-date" contenteditable="true" spellcheck="false" data-placeholder="Date">${film.updated}</div>
+      </div>
+      <div class="cell" style="align-items:center; justify-content:center; padding:8px 12px; border-right: 1px solid var(--border-light);">
+        <button class="delete-btn" onclick="deleteRow(this)" title="Remove project">Delete</button>
+      </div>
+    `;
+
+    // Auto-update "Last Updated" on any edit
+    row.querySelectorAll('[contenteditable]').forEach(el => {
+      // Double-click to enter edit mode
+      el.addEventListener('dblclick', () => {
+        if (el.dataset.rawText !== undefined) el.innerText = el.dataset.rawText;
+        el.contentEditable = 'true';
+        el.classList.add('editing');
+        el.focus();
+        // Place cursor at end
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+      });
+      el.addEventListener('input', () => {
+        const dateCell = row.querySelector('.cell-date');
+        if (el !== dateCell) dateCell.textContent = today();
+      });
+      // On blur, exit edit mode and linkify
+      el.addEventListener('blur', () => {
+        el.dataset.rawText = el.innerText;
+        el.contentEditable = 'false';
+        el.classList.remove('editing');
+        linkify(el);
+        saveSlate();
+      });
+      // Single click follows links when not in edit mode
+      el.addEventListener('click', e => {
+        if (el.classList.contains('editing')) return;
+        const link = e.target.closest('a.auto-link');
+        if (link) {
+          e.preventDefault();
+          window.open(link.href, '_blank', 'noopener');
+        }
+      });
+    });
+
+    // Drag events
+    row.addEventListener('dragstart', e => {
+      e.dataTransfer.effectAllowed = 'move';
+      row.classList.add('dragging');
+      setTimeout(() => row.classList.add('dragging'), 0);
+    });
+    row.addEventListener('dragend', () => row.classList.remove('dragging'));
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      document.querySelectorAll('.film-row').forEach(r => r.classList.remove('drag-over'));
+      row.classList.add('drag-over');
+    });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      const dragging = document.querySelector('.dragging');
+      if (dragging && dragging !== row) {
+        const grid = document.getElementById('slate-grid');
+        const rows = [...grid.querySelectorAll('.film-row')];
+        const fromIdx = rows.indexOf(dragging);
+        const toIdx = rows.indexOf(row);
+        if (fromIdx < toIdx) row.after(dragging);
+        else row.before(dragging);
+      }
+    });
+
+    return row;
+  }
+
+  function onFormatChange(sel) {
+    sel.className = `format-select format-${sel.value}`;
+    sel.closest('.film-row').querySelector('.cell-date').textContent = today();
+    saveSlate();
+  }
+
+  function onPriorityChange(sel) {
+    sel.className = `priority-select priority-${sel.value}`;
+    sel.closest('.film-row').querySelector('.cell-date').textContent = today();
+  }
+
+  function onStatusChange(sel) {
+    sel.className = `status-select status-${sel.value.replace(/\s/g,'-')}`;
+    sel.closest('.film-row').querySelector('.cell-date').textContent = today();
+  }
+
+  function deleteRow(btn) {
+    const row = btn.closest('.film-row');
+    row.style.transition = 'opacity 0.2s, transform 0.2s';
+    row.style.opacity = '0';
+    row.style.transform = 'translateX(12px)';
+    setTimeout(() => { row.remove(); updateCount(); }, 200);
+  }
+
+  function addFilm() {
+    const grid = document.getElementById('slate-grid');
+    const row = makeRow({
+      title: '', logline: '', priority: 'MED',
+      status: 'Development', actions: '', material: '', updated: today()
+    });
+    // New rows start non-editable
+    row.querySelectorAll('[contenteditable]').forEach(el => {
+      el.contentEditable = 'false';
+    });
+    grid.prepend(row);
+    updateCount();
+    // Auto-enter edit mode on the title cell
+    setTimeout(() => {
+      const titleEl = row.querySelector('.cell-title');
+      titleEl.contentEditable = 'true';
+      titleEl.classList.add('editing');
+      titleEl.focus();
+    }, 50);
+  }
+
+  function linkify(el) {
+    if (document.activeElement === el) return;
+    const text = el.innerText;
+    const mdPattern = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/;
+    const urlPattern = /https?:\/\//;
+    if (!mdPattern.test(text) && !urlPattern.test(text)) return;
+
+    // Split into lines, process each
+    const lines = text.split('\n');
+    const processed = lines.map(line => {
+      // First replace [label](url) markdown links
+      line = line.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, function(match, label, url) {
+        return '<a href="' + url + '" target="_blank" rel="noopener" class="auto-link">' + label + '</a>';
+      });
+      // Then replace any remaining bare URLs (not already inside an href)
+      line = line.replace(/(?<!href=")(https?:\/\/[^\s<>"]+)/g, function(url) {
+        return '<a href="' + url + '" target="_blank" rel="noopener" class="auto-link">' + url + '</a>';
+      });
+      return line;
+    });
+    el.innerHTML = processed.join('<br>');
+  }
+
+  // Save all rows to localStorage
+  function saveSlate() {
+    const rows = [...document.querySelectorAll('.film-row')];
+    const data = rows.map(row => {
+      const fields = row.querySelectorAll('[contenteditable]');
+      const pSel = row.querySelector('.priority-select');
+      const sSel = row.querySelector('.status-select');
+      const fSel = row.querySelector('.format-select');
+      const noteEl = row.querySelector('.cell-status-note');
+      const writerEl = row.querySelector('.cell-writer');
+      const titleEl = row.querySelector('.cell-title');
+      const loglineEl = row.querySelector('.cell-logline');
+      const actionsEl = row.querySelector('.cell-actions');
+      const materialEl = row.querySelector('.cell-material');
+      const dateEl = row.querySelector('.cell-date');
+      return {
+        title:      titleEl ? (titleEl.dataset.rawText ?? titleEl.innerText) : '',
+        writer:     writerEl ? (writerEl.dataset.rawText ?? writerEl.innerText) : '',
+        logline:    loglineEl ? (loglineEl.dataset.rawText ?? loglineEl.innerText) : '',
+        priority:   pSel ? pSel.value : 'MED',
+        status:     sSel ? sSel.value : 'Development',
+        format:     fSel ? fSel.value : '',
+        statusNote: noteEl ? (noteEl.dataset.rawText ?? noteEl.innerText) : '',
+        actions:    actionsEl ? (actionsEl.dataset.rawText ?? actionsEl.innerText) : '',
+        material:   materialEl ? (materialEl.dataset.rawText ?? materialEl.innerText) : '',
+        updated:    dateEl ? dateEl.innerText : today()
+      };
+    });
+    const company = document.querySelector('.company-name');
+    localStorage.setItem('filmSlate', JSON.stringify(data));
+    if (company) localStorage.setItem('filmSlateCompany', company.innerText);
+    const s = document.getElementById('save-status');
+    if (s) { s.textContent = 'SAVED'; setTimeout(() => s.textContent = 'AUTO-SAVING', 1500); }
+  }
+
+  function resetSlate() {
+    if (!confirm('Reset to sample data? This will erase all your changes.')) return;
+    localStorage.removeItem('filmSlate');
+    localStorage.removeItem('filmSlateCompany');
+    location.reload();
+  }
+
+  // Auto-save on any interaction
+  document.addEventListener('input', saveSlate);
+  document.addEventListener('change', saveSlate);
+  document.addEventListener('drop', () => setTimeout(saveSlate, 100));
+
+  // Init — load from localStorage or use defaults
+  const grid = document.getElementById('slate-grid');
+  const saved = localStorage.getItem('filmSlate');
+  const films = saved ? JSON.parse(saved) : defaultFilms;
+  films.forEach(f => {
+    const row = makeRow(f);
+    grid.appendChild(row);
+    // Set rawText, linkify, then set to non-editable so links are clickable
+    row.querySelectorAll('[contenteditable]').forEach(el => {
+      el.dataset.rawText = el.innerText;
+      linkify(el);
+      el.contentEditable = 'false';
+    });
+  });
+  updateCount();
+
+  const savedCompany = localStorage.getItem('filmSlateCompany');
+  if (savedCompany) document.querySelector('.company-name').innerText = savedCompany;
+
+  document.getElementById('date-display').textContent =
+    new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+</script>
+</body>
+</html>
