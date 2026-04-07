@@ -366,7 +366,7 @@
 
 <header style="display:flex; justify-content:center; padding:14px 48px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg); z-index:100;">
   <div style="display:inline-flex; align-items:center; gap:20px; margin-left:-80px;">
-    <span contenteditable="true" class="company-name" data-placeholder="COMPANY NAME" spellcheck="false">YOUR PRODUCTION CO.</span>
+    <span contenteditable="true" class="company-name" data-placeholder="COMPANY NAME" spellcheck="false">ALL DOGS INN</span>
     <span style="color:var(--text-muted);font-size:10px;letter-spacing:0.1em;">·</span>
     <span style="font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:300; color:var(--text-primary); white-space:nowrap;">Film &amp; TV Slate</span>
     <span style="color:var(--text-muted);font-size:10px;letter-spacing:0.1em;">·</span>
@@ -401,51 +401,17 @@
   const STATUSES = ['Development','Pre-Production','Production','Post-Production','Post Hold','Complete','On-Hold'];
 
   const defaultFilms = [
-    {
-      title: 'The Meridian Line',
-      logline: 'A disgraced cartographer discovers her late father\'s maps lead to a territory that shouldn\'t exist — and someone powerful wants it kept that way.',
-      priority: 'HIGH',
-      status: 'Development',
-      actions: 'Finish second draft\nAttach director by Q2',
-      material: 'Screenplay v2\nLook book',
-      updated: today()
-    },
-    {
-      title: 'Still Water',
-      logline: 'Two estranged brothers reunite to sell their childhood home and unearth a decades-old secret their mother took to her grave.',
-      priority: 'HIGH',
-      status: 'Pre-Production',
-      actions: 'Location scout – Pacific NW\nFinalize cast offers',
-      material: 'Script locked\nBudget draft',
-      updated: today()
-    },
-    {
-      title: 'Frequencies',
-      logline: 'A pirate radio DJ in 1987 Detroit accidentally broadcasts a message that changes the course of a city on the edge of collapse.',
-      priority: 'MED',
-      status: 'Development',
-      actions: 'Commission score sample\nResearch clearances',
-      material: 'Treatment\nPitch deck',
-      updated: today()
-    },
-    {
-      title: 'The Burning Season',
-      logline: 'An investigative journalist embedded with wildland firefighters uncovers an arson conspiracy with roots in state government.',
-      priority: 'MED',
-      status: 'On-Hold',
-      actions: 'Await rights clearance\nRevisit Q3',
-      material: 'Option agreement\nOutline',
-      updated: today()
-    },
-    {
-      title: 'Harbour',
-      logline: 'After washing ashore with no memory, a woman rebuilds her life in a coastal fishing town — until someone who knows her real identity arrives.',
-      priority: 'LOW',
-      status: 'Development',
-      actions: 'Writer meeting scheduled',
-      material: 'Short story rights',
-      updated: today()
-    }
+    {"title":"Commune","writer":"Lisa","logline":"A group of wealthy friends start a new society on a tropical island","priority":"HIGH","status":"Development","format":"TV","statusNote":"Kate Lambert (FX Producer) attached","actions":"-Work on notes from Kate Lambert","material":"[Google Drive](https://drive.google.com/drive/u/3/folders/1bakXyiLxF4AoDZvjRpcvn1_4beCgWeJ7)","updated":"Apr 7, 2026"},
+    {"title":"Ghost Lover","writer":"Lisa","logline":"About the founder of a revolutionary dating app","priority":"HIGH","status":"Development","format":"TV","statusNote":"Vanessa Kirby, Julie Kirby attached to star/produce","actions":"-Work on notes from development meeting on 3/27","material":"[Google Drive](https://drive.google.com/drive/u/3/folders/1I8hGDveSKLy6TVLNoChTKiNBzYC3jIlV)","updated":"Apr 7, 2026"},
+    {"title":"Beautiful People","writer":"Lisa","logline":"In an all-female community in Sligo, Ireland, a woman reconnects with a celebrity who broke her heart","priority":"MED","status":"Development","format":"FEATURE","statusNote":"Lily James attached to star/produce Waiting for financing","actions":"\n","material":"[Google Drive](https://drive.google.com/drive/u/3/folders/1FPsCTpKUdOZpLM99sTO-3niWlKd4Dkjc)","updated":"Apr 7, 2026"},
+    {"title":"Animal","writer":"Lisa","logline":"A woman travels to LA after the suicide of her ex-lover to find and kill her estranged sister","priority":"MED","status":"Development","format":"FEATURE","statusNote":"Lady Gaga attached to star Dede Gardner seeking funding.","actions":"\n","material":"[Google Drive](https://drive.google.com/drive/u/3/folders/1puJsKMJtbgHE4ig-ZUzHXpgyKdejFaQn)","updated":"Apr 7, 2026"},
+    {"title":"Fairytale of New York","writer":"Lisa","logline":"A biopic about Pogues singer Shane McGowan","priority":"MED","status":"Development","format":"FEATURE","statusNote":"Margot Robbie/Tom Ackerman attached to produce","actions":"-Work on script","material":"[Google Drive](https://drive.google.com/drive/u/3/folders/1mx4Fm5OPx0-4EoGWzTYcjP02XCThxjFO)","updated":"Apr 7, 2026"},
+    {"title":"Star Splitter","writer":"Jackson","logline":"Adaptation of the novel by Matthew Kirby","priority":"MED","status":"Development","format":"FEATURE","statusNote":"Working on live stream","actions":"-Work on livestream","material":"Google Drive","updated":"Apr 6, 2026"},
+    {"title":"Tomorrow Wendy","writer":"Jackson","logline":"A CIA agent leads a covert operation to save the world from climate change","priority":"MED","status":"Development","format":"FEATURE","statusNote":"","actions":"-Work on script","material":"","updated":"Apr 6, 2026"},
+    {"title":"Cure for Cancer","writer":"Jackson","logline":"A young man in his 20s sleeps with older women while looking for a cure for cancer","priority":"MED","status":"Development","format":"FEATURE","statusNote":"Moving from TV series to feature","actions":"-Work on script","material":"","updated":"Apr 6, 2026"},
+    {"title":"Speed 3","writer":"Jackson","logline":"Sequel to the Speed franchise","priority":"MED","status":"Development","format":"FEATURE","statusNote":"","actions":"","material":"","updated":"Apr 6, 2026"},
+    {"title":"Sandy Kofax","writer":"Jackson","logline":"Biopic of athlete Sandy Kofax","priority":"MED","status":"Development","format":"FEATURE","statusNote":"","actions":"","material":"","updated":"Apr 6, 2026"},
+    {"title":"Kristallnacht","writer":"Jackson","logline":"","priority":"MED","status":"Development","format":"FEATURE","statusNote":"","actions":"","material":"","updated":"Apr 6, 2026"}
   ];
 
   function today() {
@@ -692,10 +658,9 @@
   document.addEventListener('change', saveSlate);
   document.addEventListener('drop', () => setTimeout(saveSlate, 100));
 
-  // Init — load from localStorage or use defaults
+  // Init — always load from defaultFilms so shared link shows correct data
   const grid = document.getElementById('slate-grid');
-  const saved = localStorage.getItem('filmSlate');
-  const films = saved ? JSON.parse(saved) : defaultFilms;
+  const films = defaultFilms;
   films.forEach(f => {
     const row = makeRow(f);
     grid.appendChild(row);
@@ -716,3 +681,4 @@
 </script>
 </body>
 </html>
+
