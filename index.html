@@ -425,7 +425,7 @@
 
 <div class="col-headers">
   <div class="col-header">Title</div>
-  <div class="col-header">Writer</div>
+  <div class="col-header">Point Person</div>
   <div class="col-header">Logline</div>
   <div class="col-header">Priority</div>
   <div class="col-header">Status</div>
@@ -490,8 +490,8 @@
         <select class="format-select format-${film.format||''}" onchange="onFormatChange(this)">${fOpts}</select>
         <div class="cell-title" contenteditable="true" spellcheck="false" data-placeholder="Untitled">${film.title}</div>
       </div>
-      <div class="cell" data-label="Writer">
-        <div class="cell-writer" contenteditable="true" spellcheck="false" data-placeholder="Writer name">${film.writer||''}</div>
+      <div class="cell" data-label="Point Person">
+        <div class="cell-writer" contenteditable="true" spellcheck="false" data-placeholder="Point Person">${film.writer||''}</div>
       </div>
       <div class="cell" data-label="Logline">
         <div class="cell-logline" contenteditable="true" spellcheck="false" data-placeholder="Enter logline...">${film.logline}</div>
